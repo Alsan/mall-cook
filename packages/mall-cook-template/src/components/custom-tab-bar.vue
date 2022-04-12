@@ -3,7 +3,7 @@
  * @Autor: WangYuan
  * @Date: 2022-01-19 15:22:12
  * @LastEditors: WangYuan
- * @LastEditTime: 2022-01-28 16:22:36
+ * @LastEditTime: 2022-03-22 15:07:46
 -->
 <template>
   <ul class="tabbar" :style="fixSafeArea">
@@ -11,7 +11,7 @@
       v-for="(item, index) in tabList"
       :key="index"
       class="tabbar-item"
-      :class="[item.tabId == activeTabId ? 'tabbar-item-active' : '']"
+      :class="[item.jump.id == active ? 'tabbar-item-active' : '']"
       @click="toTab(item)"
     >
       <u-icon
@@ -30,14 +30,11 @@ import { mapGetters } from "vuex";
 export default {
   name: "tabbar",
 
-  created() {
-    this.matchTab();
-  },
-
-  data() {
-    return {
-      activeTabId: "home",
-    };
+  props: {
+    active: {
+      type: String,
+      default: "000000",
+    },
   },
 
   computed: {
@@ -46,11 +43,13 @@ export default {
     // 兼容iphonex 12 13底部安全区域
     fixSafeArea() {
       const systemInfo = this.systemInfo;
-      const safeH = systemInfo ? (systemInfo.windowHeight - systemInfo.safeArea.bottom) : 0
-      if(safeH) {
-        return `height: ${50 + safeH}px;padding-bottom: ${safeH}px;`
+      const safeH = systemInfo
+        ? systemInfo.windowHeight - systemInfo.safeArea.bottom
+        : 0;
+      if (safeH) {
+        return `height: ${50 + safeH}px;padding-bottom: ${safeH}px;`;
       } else {
-        return "height: 50px;"
+        return "height: 50px;";
       }
     },
 
@@ -66,18 +65,9 @@ export default {
   },
 
   methods: {
-    // 根据当前路由匹配tab
-    matchTab() {
-      const pages = getCurrentPages();
-      const currentPage = pages[pages.length - 1];
-      this.activeTabId = currentPage.route.split("/").pop();
-    },
-
     // 切换tab
     toTab(item) {
-      this.$jump({
-        name: item.tabId,
-      });
+      this.$jump(item.jump);
     },
   },
 };
